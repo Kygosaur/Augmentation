@@ -2,8 +2,8 @@ import os
 from PIL import Image
 
 # Define the source and output directories
-source_dir = r'c:\Users\Jack\Desktop\removed'
-output_dir = r'c:\Users\Jack\Desktop\flip'
+source_dir = r'c:\Users\jack\Desktop\aspect-640'
+output_dir = r'c:\Users\Jack\Desktop\aspect-flip'
 
 # Ensure the output directory exists
 os.makedirs(output_dir, exist_ok=True)
