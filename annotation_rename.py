@@ -117,8 +117,8 @@ if __name__ == "__main__":
         'welding mask'
     ]
 
-    input_directory = r"c:\Users\jack\Desktop\test"
-    output_directory = r"c:\Users\jack\Desktop\testr"
+    input_directory = r"c:\Users\jack\Desktop\labels"
+    output_directory = r"c:\Users\jack\Desktop\val"
 
     updater = AnnotationUpdater(input_directory, output_directory, class_mapping, class_names)
     updater.update_annotations()

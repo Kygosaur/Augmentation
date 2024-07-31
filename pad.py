@@ -3,8 +3,8 @@ from PIL import Image
 import shutil
 
 # Define the source and output directories
-source_dir = r'c:\Users\Kygo\Desktop\crop-original'
-output_dir = r'c:\Users\Kygo\Desktop\320-croppadded'
+source_dir = r'C:\Users\jack\Desktop\resized'
+output_dir = r'c:\Users\jack\Desktop\320-croppadded'
 
 # Ensure the output directory exists
 os.makedirs(output_dir, exist_ok=True)

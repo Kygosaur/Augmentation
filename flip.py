@@ -2,8 +2,8 @@ import os
 from PIL import Image
 
 # Define the source and output directories
-source_dir = r'c:\Users\Kygo\Desktop\320-croppadded'
-output_dir = r'c:\Users\Kygo\Desktop\crop-padflip'
+source_dir = r'c:\Users\Jack\Desktop\removed'
+output_dir = r'c:\Users\Jack\Desktop\flip'
 
 # Ensure the output directory exists
 os.makedirs(output_dir, exist_ok=True)
@@ -22,13 +22,14 @@ def process_image_and_label(image_path, label_path, output_dir):
     # Flip the image
     flipped_img = img.transpose(Image.FLIP_LEFT_RIGHT)
     # Construct the output path for the flipped image
-    output_image_name = os.path.basename(image_path)
+    base_name, ext = os.path.splitext(os.path.basename(image_path))
+    output_image_name = f"{base_name}_flip{ext}"
     output_image_path = os.path.join(output_dir, output_image_name)
     # Save the flipped image
     flipped_img.save(output_image_path)
 
     # Construct the output path for the flipped label file
-    output_label_name = os.path.splitext(os.path.basename(label_path))[0] + '.txt'
+    output_label_name = f"{os.path.splitext(os.path.basename(label_path))[0]}_flip.txt"
     output_label_path = os.path.join(output_dir, output_label_name)
 
     # Flip the coordinates in the label file
