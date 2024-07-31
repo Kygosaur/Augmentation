@@ -87,10 +87,6 @@ if __name__ == "__main__":
     #process_all_videos_in_folder(video_dir, output_dir)
     
     # Uncomment below to process a single video
-<<<<<<< HEAD
     video_path = r"c:\Users\Kygo\Desktop\20231102\W20 Topside Pre-Fabrication Area-1 20231102 1615-1620.mp4"
-=======
-    video_path = r"c:\Users\Kygo\Videos\2024-03-05 12-44-40.mp4"
->>>>>>> 8126ae5d52b5ca214272d46f2873dd5b981d4dab
     output_dir = r"C:\Users\Kygo\Desktop\extracted_frames"  
     process_single_video(video_path, output_dir)

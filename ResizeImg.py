@@ -1,92 +1,92 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.animation import FuncAnimation
+from PIL import Image
+import os
+import shutil
 
-def create_colormap():
-    colors = [
-        (0.0,   'darkblue'),    # Dark blue from 0 to 1
-        (0.1,   'mediumblue'),  # Transition from dark blue to medium blue (1 to 25)
-        (0.2,   'blue'),        # Transition from medium blue to blue (26 to 50)
-        (0.3,   'deepskyblue'), # Transition from blue to deep sky blue (51 to 75)
-        (0.4,   'cyan'),        # Transition from deep sky blue to cyan (76 to 100)
-        (0.5,   'lime'),        # Transition from cyan to lime (101 to 125)
-        (0.6,   'yellow'),      # Transition from lime to yellow (126 to 150)
-        (0.7,   'gold'),        # Transition from yellow to gold (151 to 175)
-        (0.8,   'orange'),      # Transition from gold to orange (176 to 200)
-        (0.9,   'darkorange'),  # Transition from orange to dark orange (201 to 225)
-        (1.0,   'darkred')      # Transition from dark orange to dark red (226 to 255)
-    ]
-    cmap = LinearSegmentedColormap.from_list('custom', colors, N=256)
-    return cmap
-# Initialize pressure data with random values
-def randomize_pressure_data():
-    return np.random.randint(0, 256, size=(15, 5))
+def resize_image_with_aspect_ratio(image, target_size):
+    """Resize image maintaining aspect ratio and filling with black if necessary."""
+    aspect_ratio = image.width / image.height
+    target_aspect = target_size[0] / target_size[1]
 
-# Define custom labels for each cell
-def get_custom_labels():
-    rows = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-    cols = ['1', '2', '3', '4', '5', '6', '7', '8']
-    custom_labels = []
+    if aspect_ratio > target_aspect:
+        # Image is wider than target
+        new_width = target_size[0]
+        new_height = int(new_width / aspect_ratio)
+    else:
+        # Image is taller than target
+        new_height = target_size[1]
+        new_width = int(new_height * aspect_ratio)
 
-    for i in range(8):
-        row_labels = []
-        for j in range(8):
-            if j < len(cols) and i < len(rows):
-                row_labels.append(rows[i] + cols[j])
-            else:
-                row_labels.append('')
-        custom_labels.append(row_labels)
+    resized_image = image.resize((new_width, new_height), Image.LANCZOS)
 
-    return custom_labels
+    new_image = Image.new("RGB", target_size, (0, 0, 0))
+    paste_x = (target_size[0] - new_width) // 2
+    paste_y = (target_size[1] - new_height) // 2
+    new_image.paste(resized_image, (paste_x, paste_y))
 
-# Create the initial graph without footprint mask
-def create_graph(pressure_data, custom_labels, cmap):
-    fig, ax = plt.subplots(figsize=(8, 8))
-    im = ax.imshow(pressure_data, cmap=cmap, vmin=0, vmax=255)
+    return new_image, (paste_x, paste_y, new_width, new_height)
 
-    # Add text labels to each cell based on custom_labels
-    text_labels = []
-    for i in range(8):
-        for j in range(8):
-            label = custom_labels[i][j]
-            if label:
-                text = ax.text(j, i, label, ha='center', va='center', fontsize=10, color='black', weight='bold', zorder=10)
-                text_labels.append(text)
+def adjust_annotations(annotations, original_size, new_size, paste_info):
+    """Adjust YOLO format annotations after resizing."""
+    orig_w, orig_h = original_size
+    new_w, new_h = new_size
+    paste_x, paste_y, resized_w, resized_h = paste_info
 
-    ax.set_xticks([])
-    ax.set_yticks([])
+    adjusted_annotations = []
+    for annotation in annotations:
+        class_id, x_center, y_center, width, height = map(float, annotation.split())
+        
+        # Adjust for resizing and padding
+        x_center = (x_center * orig_w * resized_w / orig_w + paste_x) / new_w
+        y_center = (y_center * orig_h * resized_h / orig_h + paste_y) / new_h
+        width = width * resized_w / new_w
+        height = height * resized_h / new_h
 
-    cbar = fig.colorbar(im, ax=ax)
-    cbar.set_label('Pressure Intensity')
-    ax.set_title('Pressure Heatmap')
+        adjusted_annotations.append(f"{int(class_id)} {x_center} {y_center} {width} {height}")
 
-    return fig, ax, im, text_labels
+    return adjusted_annotations
 
-# Update the heatmap with new data
-def update(frame, pressure_data, im, text_labels):
-    # Generate new random pressure data
-    pressure_data = np.random.randint(0, 256, size=(8, 8))
+def resize_images(image_dir, resized_dir, size=(640, 640)):
+    """
+    Resizes images in the given directory to the specified size, maintaining aspect ratio,
+    and adjusts corresponding .txt files with YOLO format annotations.
+    """
+    try:
+        if not os.path.exists(resized_dir):
+            os.makedirs(resized_dir)
 
-    im.set_data(pressure_data)
-    # Ensure the data stays within the valid range [0, 255] for colour heatmap
-    im.set_clim(vmin=0, vmax=255)
+        for filename in os.listdir(image_dir):
+            try:
+                if filename.lower().endswith((".png", ".jpg", ".jpeg")):
+                    img_path = os.path.join(image_dir, filename)
+                    img = Image.open(img_path)
+                    original_size = img.size
 
-    # Update text labels (if they change with new data)
-    for text in text_labels:
-        text.set_zorder(10)
+                    resized_img, paste_info = resize_image_with_aspect_ratio(img, size)
 
-    return [im] + text_labels
+                    resized_img.save(os.path.join(resized_dir, filename), quality=95)
+
+                    # Adjust and save corresponding .txt file
+                    txt_filename = os.path.splitext(filename)[0] + ".txt"
+                    txt_path = os.path.join(image_dir, txt_filename)
+                    if os.path.exists(txt_path):
+                        with open(txt_path, 'r') as f:
+                            annotations = f.read().strip().split('\n')
+                        
+                        adjusted_annotations = adjust_annotations(annotations, original_size, size, paste_info)
+                        
+                        with open(os.path.join(resized_dir, txt_filename), 'w') as f:
+                            f.write('\n'.join(adjusted_annotations))
+
+            except Exception as e:
+                print(f"Error processing image '{filename}': {e}")
+
+        print(f"Images resized successfully to {size} while maintaining aspect ratio and adjusting annotations.")
+
+    except Exception as e:
+        print(f"Error during resizing operation: {e}")
 
 if __name__ == "__main__":
-    cmap = create_colormap()
-    pressure_data = randomize_pressure_data()
-    custom_labels = get_custom_labels()
+    image_dir = r"c:\Users\jack\Desktop\removed"
+    resized_dir = r"c:\Users\jack\Desktop\aspect-640"
 
-    fig, ax, im, text_labels = create_graph(pressure_data, custom_labels, cmap)
-    
-    # to animate
-    ani = FuncAnimation(fig, update, frames=200, interval=100, blit=True, 
-                        fargs=(pressure_data, im, text_labels))
-
-    plt.show()
+    resize_images(image_dir, resized_dir)

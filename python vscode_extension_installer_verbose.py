@@ -46,7 +46,7 @@ class VSCodeExtensionManager:
         Fetch the list of currently installed VS Code extensions.
         """
         print("Fetching installed VS Code extensions...")
-        result = subprocess.run([self.vscode_path, '--list-extensions'], capture_output=True, text=True, shell=True)
+        result = subprocess.run([self.vscode_path, '--list-extensions'], capture_output=True, text=True)
         if result.returncode == 0:
             installed_extensions = result.stdout.splitlines()
             print(f"Installed extensions: {installed_extensions}")
@@ -71,19 +71,20 @@ class VSCodeExtensionManager:
             print(f"Error reading file: {file_path}")
             return
 
-        for extension in extensions:
-            print(f"\nChecking extension: {extension}")
-            if extension in self.installed_extensions:
-                print(f"+ Extension already installed: {extension}")
+        # Batch install extensions
+        extensions_to_install = [ext for ext in extensions if ext not in self.installed_extensions]
+        if extensions_to_install:
+            print("Installing extensions...")
+            command = [self.vscode_path, '--install-extension'] + extensions_to_install
+            result = subprocess.run(command, capture_output=True, text=True)
+            if result.returncode == 0:
+                print("Successfully installed extensions.")
+                self.installed_extensions.extend(extensions_to_install)
             else:
-                print(f"Installing extension: {extension}")
-                result = subprocess.run([self.vscode_path, '--install-extension', extension], capture_output=True, text=True, shell=True)
-                if result.returncode == 0:
-                    print(f"+ Successfully installed: {extension}")
-                    self.installed_extensions.append(extension)
-                else:
-                    print(f"- Failed to install: {extension}")
-                    print(f"Error message: {result.stderr}")
+                print("Failed to install some extensions.")
+                print(f"Error message: {result.stderr}")
+        else:
+            print("All extensions are already installed.")
 
         print("\nInstallation completed.")
         print(f"Total installed extensions: {len(self.installed_extensions)}")
@@ -97,6 +98,9 @@ def main():
     manager = VSCodeExtensionManager()
     input_file = "vscode_extensions.txt"
     
+    if not os.path.exists(input_file):
+        input_file = input("Enter the full path to the 'vscode_extensions.txt' file: ").strip()
+    
     if os.path.exists(input_file):
         print(f"Found input file: {input_file}")
         manager.install_extensions_from_file(input_file)
@@ -106,8 +110,8 @@ def main():
     print("VS Code Extension Installer completed.")
     print("Reloading VS Code to apply changes...")
 
-    # Reloading VS Code after installation
-    subprocess.run([manager.vscode_path, '--reload'], shell=True)
+    # Manually instruct the user to reload VS Code if needed
+    print("Please manually reload or restart VS Code to apply changes.")
 
 if __name__ == "__main__":
     main()

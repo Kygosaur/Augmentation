@@ -28,7 +28,7 @@ def count_objects_per_class(annotation_dir):
 
     return class_counts
 
-annotation_dir = r"c:\Users\jack\Desktop\removed"
+annotation_dir = r"c:\Users\jack\Desktop\640-original - Copy"
 class_counts = count_objects_per_class(annotation_dir)
 
 print("Number of objects per class:")
