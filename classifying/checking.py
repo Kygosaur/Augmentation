@@ -37,5 +37,5 @@ def check_image_files(directory):
             print(f"{jpg_file} is not in a supported format (JPEG).")
 
 if __name__ == "__main__":
-    directory = r"c:\Users\Kygo\Desktop\train1"  # Update this to your directory
+    directory = r"c:\Users\jack\Desktop\aspect-640"  # Update this to your directory
     check_image_files(directory)

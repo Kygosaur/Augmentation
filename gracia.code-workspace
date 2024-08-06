@@ -54,7 +54,9 @@
 		},
 		"git.ignoreLimitWarning": true,
 		"cSpell.words": [
-			"LOCALAPPDATA"
+			"annots",
+			"LOCALAPPDATA",
+			"YOLO"
 		],
 		"workbench.colorCustomizations": {
 			"activityBar.activeBackground": "#2f7c47",

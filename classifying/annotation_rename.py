@@ -167,8 +167,8 @@ if __name__ == "__main__":
     ]
 
     # Set input and output directories
-    input_directory = r"c:\Users\jack\Desktop\labels"
-    output_directory = r"c:\Users\jack\Desktop\val"
+    input_directory = r"c:\Users\jack\Desktop\val"
+    output_directory = r"c:\Users\jack\Desktop\new2"
 
     # Create an instance of AnnotationUpdater and run the update process
     updater = AnnotationUpdater(input_directory, output_directory, class_mapping, class_names)

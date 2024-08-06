@@ -1,4 +1,6 @@
 import os
+import shutil
+import json
 from collections import defaultdict
 
 def count_objects_per_class(annotation_dir):
@@ -22,13 +24,13 @@ def count_objects_per_class(annotation_dir):
                         parts = line.strip().split()
                         if len(parts) ==  5:
                             class_id = int(parts[0])    
-                            class_counts[class_id] +=  1
+                            class_counts[class_id] +=  1 
             except Exception as e:
                 print("Error for {file_path}:{e}")
 
     return class_counts
 
-annotation_dir = r"c:\Users\jack\Desktop\640-original - Copy"
+annotation_dir = r"c:\Users\jack\Desktop\train"
 class_counts = count_objects_per_class(annotation_dir)
 
 print("Number of objects per class:")

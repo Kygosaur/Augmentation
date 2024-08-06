@@ -56,7 +56,7 @@ def check_annotation_files(directory):
             print(f"Incorrectly formatted bounding boxes found in {txt_file}.")
 
 if __name__ == "__main__":
-    directory = r"c:\Users\Kygo\Desktop\trainHD"
+    directory = r"c:\Users\jack\Desktop\aspect-640"
     check_annotation_files(directory)
     class_counts = count_objects_per_class(directory)
     
