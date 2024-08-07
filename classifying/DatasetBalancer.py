@@ -297,7 +297,7 @@ class DatasetBalancer:
 
 if __name__ == "__main__":
     input_folder = r"c:\Users\jack\Desktop\test"
-    secondary_folder = r"c:\Users\jack\Desktop\aspect-640"
+    secondary_folder = r"c:\Users\jack\Desktop\train"
     output_folder = r"c:\Users\jack\Desktop\true_val"
     extra_folder = r"c:\Users\jack\Desktop\extra"
     
