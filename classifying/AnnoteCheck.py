@@ -28,7 +28,7 @@ def count_objects_per_class(annotation_dir):
 
     return class_counts
 
-annotation_dir = r"g:\new dataset\640-original"
+annotation_dir = r"c:\Users\USER\OneDrive\Desktop\train"
 class_counts = count_objects_per_class(annotation_dir)
 
 print("Number of objects per class:")
